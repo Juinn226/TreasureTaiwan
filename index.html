@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>尋景台灣</title>
+  <link rel="stylesheet" href="style.css">
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <a href="#" class="logo" id="logo-home">尋景台灣</a>
+
+    <div class="nav-right">
+      
+      <a href="#" class="nav-item simple-nav-link" id="nav-intro-btn">遊戲介紹</a>
+
+      <a href="#" class="nav-item simple-nav-link" id="nav-instruction-btn">遊戲說明</a>
+      
+      <a href="#" class="nav-item simple-nav-link" id="nav-recommend-btn">景點推薦</a>
+
+    </div>
+  </nav>
+
+  <div id="start-screen" class="start-screen">
+    <video autoplay muted loop playsinline id="bg-video">
+      <source src="videos/video.02.mp4" type="video/mp4">
+    </video>
+
+    <div class="start-overlay">
+      <h1 class="start-title">尋景台灣</h1>
+      <p class="start-subtitle">從一張照片，找回你記憶中的台灣風景。</p>
+      
+      <div class="marquee">
+        <div class="marquee-track" id="marquee-track"></div>
+      </div>
+      <button id="start-btn" class="primary-btn">開始遊戲</button>
+    </div>
+  </div>
+
+  <div id="difficulty-modal" class="modal-overlay">
+    <div class="modal-content difficulty-content">
+      <button class="close-btn difficulty-close-btn" id="difficulty-modal-close-btn">X</button>
+      <h2>選擇難度</h2>
+      
+      <div class="difficulty-options">
+        <button class="primary-btn difficulty-btn" data-time="15">極限挑戰 (15秒)</button>
+        <button class="primary-btn difficulty-btn" data-time="30">困難 (30秒)</button>
+        <button class="primary-btn difficulty-btn" data-time="60">普通 (60秒)</button>
+        <button class="primary-btn difficulty-btn" data-time="0">無限時間 (休閒模式)</button>
+      </div>
+      
+    </div>
+  </div>
+
+  <div id="instruction-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" id="modal-close-btn">X</button>
+      <h2>遊戲說明</h2>
+      
+      <p>
+        看照片，判斷這個地標 / 景點在台灣的哪裡；然後在地圖上點選你認為最接近的地點
+      </p>
+      
+      <ol>
+        <li>網站顯示一張「台灣某地標 / 景點」的照片</li>
+        <li>玩家在地圖上點選一個位置，代表你猜測這張照片地標的大致所在位置</li>
+        <li>玩家只有一次點選機會</li>
+        <li>點選後，網站判定玩家所選擇的縣市是否為該地標 / 景點所在的縣市，若答對就 +100分；答錯 +0分</li>
+      </ol>
+      
+      </div>
+  </div>
+  
+  <div id="intro-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" id="intro-modal-close-btn">X</button>
+      <h2>尋景台灣</h2>
+      
+      <p class="intro-p">
+        歡迎來到 <strong>「尋景台灣」</strong>！
+      </p>
+      
+      <p class="intro-p">
+        這是一款結合 視覺辨識、地理知識 與 探索樂趣 的網頁遊戲，讓你透過照片來猜出台灣各地的景點位置。
+      </p>
+      
+      <p class="intro-p">
+        本遊戲靈感源自經典的地理猜謎遊戲 GeoGuessr，但我們將視角聚焦在 <strong>美麗又多元的台灣</strong> —— 從城市街景到山海風光，讓你在輕鬆遊玩的同時，更了解這片土地的獨特魅力。
+      </p>
+      
+      <p class="intro-p">
+        不論你是地理小達人，還是想更認識台灣的旅人，都能在「尋景台灣」找到屬於你的探索樂趣！
+      </p>
+      
+    </div>
+  </div>
+
+  <div id="recommend-modal" class="modal-overlay">
+    <div class="modal-content recommend-content">
+        <button class="close-btn recommend-close-btn" id="recommend-modal-close-btn">X</button>
+        
+        <div class="feedback-card">
+            <h2>還有想推薦的台灣景點嗎？</h2>
+            <p class="feedback-desc">
+                歡迎分享你心中私藏的景點，幫我們替它寫一小段介紹 🧡
+            </p>
+
+            <form id="feedback-form">
+                <div class="form-row">
+                    <label for="player-name">你的暱稱（可不填）</label>
+                    <input
+                        type="text"
+                        id="player-name"
+                        name="playerName"
+                        placeholder="例：小明 / 旅人A"
+                    />
+                </div>
+
+                <div class="form-row">
+                    <label for="spot-name">推薦景點名稱 *</label>
+                    <input
+                        type="text"
+                        id="spot-name"
+                        name="spotName"
+                        required
+                        placeholder="例：象鼻岩、藍洞、琉球秘境海灘⋯"
+                    />
+                </div>
+
+                <div class="form-row">
+                    <label for="spot-city">位在縣市 *</label>
+                    <input
+                        type="text"
+                        id="spot-city"
+                        name="spotCity"
+                        required
+                        placeholder="例：新北市瑞芳區"
+                    />
+                </div>
+
+                <div class="form-row">
+                    <label for="spot-intro">簡短介紹（為什麼想推薦？） *</label>
+                    <textarea
+                        id="spot-intro"
+                        name="spotIntro"
+                        rows="4"
+                        required
+                        placeholder="簡單描述一下這個景點的特色、氣氛或你喜歡它的原因。"
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="primary-btn feedback-submit">
+                    送出推薦 ✉
+                </button>
+
+                <p id="feedback-message" class="feedback-message"></p>
+            </form>
+        </div>
+    </div>
+  </div>
+  
+  <div id="hint-modal" class="modal-overlay hint-modal-overlay">
+    <div class="modal-content hint-content">
+      <button class="close-btn hint-close-btn" id="hint-modal-close-btn">X</button> 
+      <h2>景點提示</h2>
+      <p id="hint-modal-text"></p>
+    </div>
+  </div>
+  
+  <div id="answer-modal" class="modal-overlay answer-modal-overlay">
+    <div class="modal-content answer-content">
+        <button class="close-btn answer-close-btn" id="answer-modal-close-btn">X</button>
+        <h2 id="answer-modal-title"></h2>
+        
+        <div id="answer-modal-body">
+            <p id="answer-modal-result"></p>
+            
+            <div class="modal-divider"></div>
+            
+            <p><b>所在位置：</b><span id="answer-modal-region"></span></p>
+            <p><b>簡介：</b><span id="answer-modal-intro"></span></p>
+        </div>
+    </div>
+  </div>
+
+  <div id="photo-modal" class="modal-overlay">
+    <div class="photo-modal-content">
+      <img id="enlarged-photo" src="" alt="景點放大照片"> 
+    </div>
+  </div>
+
+  <div class="game-container" id="game-container">
+    
+    <div id="map"></div>
+
+    <div class="right-panel">
+        <section class="photo-panel">
+            <img id="location-photo" src="" alt="景點照片" style="cursor: pointer;"> 
+        </section>
+
+        <section class="info-card">
+          
+          <div class="score-display">
+            <p id="round-text">第 0 / 0 題</p>
+            <p id="score-text">總分：0</p>
+          </div>
+          
+          <div id="timer-container" style="display: none;">
+            <span id="timer-label">剩餘時間：</span>
+            <div id="timer-bar">
+              <div id="timer-fill"></div>
+            </div>
+            <span id="timer-text"></span>
+            <span id="timer-unit">秒</span>
+          </div>
+
+          <div id="pre-click-area">
+             <button id="show-hint-btn" class="secondary-btn control-btn">查看提示</button>
+          </div>
+          
+          <div id="result-display-area" style="display:none;">
+            <p id="hint-text" class="initial-message"></p>
+            <p id="result-text" class="result-message"></p>
+            
+            <div class="control-btn-group">
+                <button id="show-answer-btn" class="secondary-btn control-btn">查看答案</button>
+                <button id="next-btn" class="primary-btn control-btn">下一題 ▶</button>
+            </div>
+          </div>
+
+        </section>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

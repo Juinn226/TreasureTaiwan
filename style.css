@@ -1,0 +1,614 @@
+/* ==================== 全局設定與基本排版 ==================== */
+body {
+  margin: 0;
+  background: #0f172a; /* 深藍色背景 */
+  color: white;
+  font-family: "Microsoft JhengHei", sans-serif;
+  height: 100vh;
+  overflow: hidden; /* 防止滾動條 */
+}
+
+/* 遊戲主容器，定位在導覽列下方 */
+.game-container {
+  display: none; /* 預設隱藏，等待遊戲開始 */
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+/* ==================== 按鈕樣式 (Buttons) ==================== */
+
+/* 主要按鈕 (橘色) */
+.primary-btn {
+  background: #f97316;
+  color: #111827;
+  padding: 16px 36px;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.primary-btn:hover {
+  background: #fb923c;
+  transform: translateY(-2px);
+}
+
+/* 次要按鈕 (較淺的橘色) */
+.secondary-btn {
+    background: #ff8c42;
+    color: #111827;
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.secondary-btn:hover {
+    background: #ffa757;
+    transform: translateY(-2px);
+}
+
+
+/* ==================== 開始畫面 (Start Screen) ==================== */
+
+/* 背景影片樣式 */
+#bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* 開始畫面的遮罩層 (用於影片上疊加半透明黑色) */
+.start-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: -1;
+}
+
+/* 開始畫面容器 */
+.start-screen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 900;
+  pointer-events: auto;
+  background: none; 
+}
+
+/* 開始畫面的內容疊加層 (標題、副標、按鈕) */
+.start-overlay {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #ffffff;
+  padding: 0 16px;
+}
+
+.start-title {
+  font-size: 64px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.start-subtitle {
+  font-size: 20px;
+  max-width: 480px;
+  margin-bottom: 30px;
+  color: #e5e7eb;
+}
+
+/* 跑馬燈/輪播區塊 */
+.marquee {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 2px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 跑馬燈的軌道 (圖片列表) */
+.marquee-track {
+  display: flex;
+  gap: 8px;
+  animation: marquee 30s linear infinite; /* 關鍵的滾動動畫 */
+}
+
+.marquee-track img {
+  height: 220px;
+  width: auto;
+  flex-shrink: 0; /* 防止圖片被壓縮 */
+  border-radius: 16px;
+  object-fit: cover;
+  filter: saturate(1.1);
+}
+
+/* 跑馬燈滾動動畫的關鍵幀 */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* 滾動一半的內容長度 */
+  }
+}
+
+/* 跑馬燈 RWD 調整 */
+@media (max-width: 768px) {
+    .marquee {
+        width: 90%;
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+}
+
+
+/* ==================== 導覽列 (Navbar) ==================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px); /* 模糊效果 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 30px;
+  z-index: 1000;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  pointer-events: auto;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-right: auto; /* 將右側內容推到最右邊 */
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-right: 40px;
+}
+
+.nav-item {
+  position: relative;
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: 0.2s;
+  
+  color: inherit; 
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+
+/* ==================== 遊戲介面 (Game Interface) ==================== */
+
+/* 地圖容器 */
+#map {
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+}
+
+/* 右側面板 (照片、資訊、控制區) */
+.right-panel {
+  width: 380px; 
+  flex-shrink: 0;
+  background: #1e293b;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px;
+  height: 100%; 
+  overflow-y: auto;
+  overflow-x: hidden;
+  top: 70px;
+}
+
+/* 照片顯示面板 */
+.photo-panel {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.photo-panel img {
+  width: 100%;
+}
+
+/* 資訊卡片 (分數、計時器、按鈕) */
+.info-card {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex-grow: 1;
+}
+
+/* 分數/回合數顯示區 */
+.score-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* 計時器容器 */
+#timer-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 15px 0;
+    color: #cbd5e1;
+    flex-shrink: 0;
+}
+
+/* 計時器進度條外框 */
+#timer-bar {
+    flex-grow: 1;
+    height: 10px;
+    background: #475569;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* 計時器進度條填充 */
+#timer-fill {
+    height: 100%;
+    width: 100%;
+    background: #4ade80; /* 綠色 */
+    transition: width 0.2s linear, background-color 0.5s;
+}
+
+/* 地圖標記樣式調整 */
+.leaflet-marker-icon {
+    opacity: 0.9;
+}
+
+/* 玩家猜測標記 (紅色圓點) */
+.guess-marker {
+    font-size: 24px;
+    line-height: 24px;
+    width: 24px !important;
+    height: 24px !important;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+/* 正確答案標記 (綠色圓點) */
+.answer-marker {
+    font-size: 24px;
+    line-height: 24px;
+    width: 24px !important;
+    height: 24px !important;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+/* 地圖點擊前的控制區塊 (提示按鈕) */
+#pre-click-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+#show-hint-btn {
+    width: 100%;
+    padding: 15px 0;
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+/* 點擊地圖後的結果顯示區塊 */
+#result-control-area {
+  display: none;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+/* 提示文字樣式 (答對/答錯訊息) */
+#hint-text {
+  color: #fff;
+  font-size: 20px; 
+  padding: 10px 0;
+  flex-shrink: 0; 
+  font-weight: 700;
+}
+
+/* 結果補充文字樣式 (保留給未來的詳細結果/距離計算) */
+#result-text {
+  flex-grow: 1; 
+  line-height: 1.6;
+  padding: 10px 0;
+  color: #a0aec0;
+}
+
+/* 底部控制按鈕群組 (查看答案、下一題) */
+.control-btn-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: auto; /* 將按鈕推到底部 */
+    flex-shrink: 0;
+}
+
+.control-btn-group .control-btn {
+    flex: 1;
+    margin-top: 0 !important;
+}
+
+/* ==================== Modal 視窗 (彈出視窗) ==================== */
+
+/* Modal 遮罩層 */
+.modal-overlay {
+  display: none; /* 預設隱藏 */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15); 
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal 內容區塊 */
+.modal-content {
+  background: white;
+  color: black;
+  padding: 30px 40px; 
+  border-radius: 12px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* 調整非特殊 Modal 的最大寬度 */
+.modal-content:not(.hint-content):not(.difficulty-content):not(.recommend-content) {
+    max-width: 750px; 
+}
+
+.modal-content h2 {
+  font-size: 32px; 
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  color: black; 
+}
+
+/* 介紹和說明 Modal 的標題顏色 */
+#intro-modal .modal-content h2 {
+    color: #f97316;
+}
+#instruction-modal .modal-content h2 {
+    color: #f97316;
+}
+
+
+.modal-content p, .modal-content ol {
+    font-size: 22px; 
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+/* Modal 關閉按鈕 */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: black; 
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  opacity: 1;
+  color: #f97316;
+}
+
+
+/* 景點提示 Modal 特殊樣式 */
+.hint-content {
+    max-width: 300px;
+    padding: 25px 30px;
+    text-align: center;
+}
+
+.hint-content h2 {
+    color: #f97316;
+    font-size: 28px;
+}
+
+.hint-content #hint-modal-text {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 5px;
+    display: block;
+    color: #4b5563;
+}
+
+
+/* 難度選擇 Modal 特殊樣式 */
+.difficulty-content {
+    max-width: 450px !important;
+    padding: 30px 40px;
+}
+
+.difficulty-content h2 {
+    color: #f97316;
+    font-size: 32px; 
+    margin-bottom: 30px;
+}
+
+.difficulty-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.difficulty-btn {
+    width: 100%;
+    font-size: 18px;
+    padding: 15px 0;
+}
+
+
+/* 照片放大 Modal 特殊樣式 */
+#photo-modal {
+    z-index: 1200;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.photo-modal-content {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    width: 90vw;
+    max-width: 1200px;
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-modal-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+
+/* 景點推薦 Modal 特殊樣式 */
+.recommend-content {
+    max-width: 600px !important; 
+    padding: 30px 40px;
+}
+
+.feedback-card {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.feedback-card h2 {
+    color: #f97316;
+    font-size: 32px;
+    margin-bottom: 5px;
+}
+
+.feedback-desc {
+    font-size: 18px;
+    color: #4b5563;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* 推薦表單樣式 */
+#feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-row label {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.form-row input,
+.form-row textarea {
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #374151;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
+}
+
+.form-row input:focus,
+.form-row textarea:focus {
+    border-color: #f97316;
+    outline: none;
+}
+
+.feedback-submit {
+    padding: 12px 20px;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+/* 表單送出後的回饋訊息 */
+.feedback-message {
+    color: #f97316;
+    font-weight: 700;
+    text-align: center;
+    font-size: 20px;
+    margin-top: 15px;
+}
+}
